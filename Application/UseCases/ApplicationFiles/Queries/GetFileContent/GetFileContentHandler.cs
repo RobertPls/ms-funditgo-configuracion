@@ -1,18 +1,17 @@
 ﻿
 using Application.Dto.ApplicationFile;
 using Application.Services;
-using Application.UseCases.ApplicationFiles.Queries.GetFileContent;
-using Domain.Repository;
+using Domain.Repository.Archivos;
 using MediatR;
 
 namespace Application.UseCases.ApplicationFiles.Queries.GetFileContent;
 
 internal class GetFileContentHandler : IRequestHandler<GetFileContentQuery, FileContentDto?>
 {
-    private readonly IApplicationFileRepository _applicationFileRepository;
+    private readonly IArchivoRepository _applicationFileRepository;
     private readonly IFileService _fileService;
 
-    public GetFileContentHandler(IApplicationFileRepository applicationFileRepository, IFileService fileService)
+    public GetFileContentHandler(IArchivoRepository applicationFileRepository, IFileService fileService)
     {
         _applicationFileRepository = applicationFileRepository;
         _fileService = fileService;

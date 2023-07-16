@@ -1,22 +1,21 @@
 ﻿using Infrastructure.EntityFramework.Contexts;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Shared.Core;
 
 namespace Infrastructure.EntityFramework;
 
 internal class UnitOfWork : IUnitOfWork
 {
-    private readonly WriteDbContext _dbContext;
+    private readonly WriteDbContext _context;
     private readonly IMediator _mediator;
 
     private readonly List<DomainEvent> _domainEvents;
-    private int _tansactionCounter;
 
     public UnitOfWork(WriteDbContext context, IMediator mediator)
     {
-        _dbContext = context;
+        _context = context;
         _mediator = mediator;
-        _tansactionCounter = 0;
 
         _domainEvents = new List<DomainEvent>();
     }
@@ -29,42 +28,26 @@ internal class UnitOfWork : IUnitOfWork
 
     public async Task CommitAsync(CancellationToken cancellationToken = default)
     {
-        _tansactionCounter++;
+        var domainEvents = _context.ChangeTracker.Entries<Entity<Guid>>()
+                .Select(x => x.Entity.DomainEvents)
+                .SelectMany(x => x)
+                .Where(x => !x.Consumed)
+                .ToArray();
 
-        var receivedEvents = _dbContext.ChangeTracker.Entries<Entity<Guid>>()
-            .Select(x => x.Entity)
-            .SelectMany(entity =>
-            {
-                var events = entity.DomainEvents.ToList();
-                entity.ClearDomainEvents();
-
-                return events;
-            });
-
-        _domainEvents.AddRange(receivedEvents);
-
-        var domainEvents = _domainEvents
-            .Where(x => !x.Consumed)
-            .OrderBy(x => x.OccuredOn)
-            .ToArray();
-
-        foreach (var evento in domainEvents)
+        foreach (var domainEvent in domainEvents)
         {
-            if (evento.Consumed)
-            {
-                continue;
-            }
-            evento.MarkAsConsumed();
-            await _mediator.Publish(evento, cancellationToken);
+            domainEvent.MarkAsConsumed();
+            await _mediator.Publish(domainEvent);
         }
+        await _context.SaveChangesAsync();
 
-        if (_tansactionCounter == 1)
+        foreach (var @event in domainEvents)
         {
-            await _dbContext.SaveChangesAsync(cancellationToken);
-        }
-        else
-        {
-            _tansactionCounter--;
+            Type type = typeof(ConfirmedDomainEvent<>).MakeGenericType(@event.GetType());
+
+            var confirmedEvent = (INotification)Activator.CreateInstance(type, @event);
+
+            await _mediator.Publish(confirmedEvent);
         }
 
     }

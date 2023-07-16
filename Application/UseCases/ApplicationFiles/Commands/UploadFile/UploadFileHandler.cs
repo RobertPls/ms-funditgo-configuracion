@@ -1,7 +1,8 @@
 ﻿
 using Application.Services;
 using Domain.Model;
-using Domain.Repository;
+using Domain.Model.Archivos;
+using Domain.Repository.Archivos;
 using MediatR;
 using Shared.Core;
 
@@ -9,16 +10,16 @@ namespace Application.UseCases.ApplicationFiles.UploadFile;
 
 public class UploadFileHandler : IRequestHandler<UploadFileCommand, Guid>
 {
-    private readonly IApplicationFileRepository _applicationFileRepository;
+    private readonly IArchivoRepository _archivoRepository;
     private readonly IFileService _fileService;
     private readonly IUnitOfWork _unitOfWork;
 
     public UploadFileHandler(
-        IApplicationFileRepository applicationFileRepository, 
+        IArchivoRepository archivoRepository, 
         IFileService fileService, 
         IUnitOfWork unitOfWork)
     {
-        _applicationFileRepository = applicationFileRepository;
+        _archivoRepository = archivoRepository;
         _fileService = fileService;
         _unitOfWork = unitOfWork;
     }
@@ -27,12 +28,12 @@ public class UploadFileHandler : IRequestHandler<UploadFileCommand, Guid>
     {
         var locationPath = await _fileService.SaveFile(request.FileBytes);
 
-        var applicationFile = new ApplicationFile(request.FileName, locationPath, request.Extension, request.ContentType, DateTime.Now);
+        var archivo = new Archivo(request.FileName, locationPath, request.Extension, request.ContentType, DateTime.Now);
 
-        await _applicationFileRepository.CreateAsync(applicationFile);
+        await _archivoRepository.CreateAsync(archivo);
 
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return applicationFile.Id;
+        return archivo.Id;
     }
 }

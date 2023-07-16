@@ -1,8 +1,10 @@
 ﻿using Shared.Core;
 using Shared.Rules;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.ValueObjects
 {
+    [NotMapped]
     public record FileNameValue : ValueObject
     {
         public string FileName { get; }

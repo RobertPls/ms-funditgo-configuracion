@@ -20,33 +20,33 @@ public class FileController : Controller
         _logger = logger;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Upload(IFormFile file)
-    {
+    //[HttpPost]
+    //public async Task<IActionResult> Upload(IFormFile file)
+    //{
 
-        try
-        {
-            await using var memoryStream = new MemoryStream();
-            await file.CopyToAsync(memoryStream);
-            byte[] bytes = memoryStream.ToArray();
+    //    try
+    //    {
+    //        await using var memoryStream = new MemoryStream();
+    //        await file.CopyToAsync(memoryStream);
+    //        byte[] bytes = memoryStream.ToArray();
 
-            var fileContent = ContentDispositionHeaderValue.Parse(file.ContentDisposition);
-            string originalFileName = Path.GetFileName(fileContent.FileName);
-            string extension = Path.GetExtension(fileContent.FileName);
-            string contentType = file.ContentType;
+    //        var fileContent = ContentDispositionHeaderValue.Parse(file.ContentDisposition);
+    //        string originalFileName = Path.GetFileName(fileContent.FileName);
+    //        string extension = Path.GetExtension(fileContent.FileName);
+    //        string contentType = file.ContentType;
 
-            var command = new UploadFileCommand(bytes, originalFileName, extension, contentType);
-            var fileId = await _mediator.Send(command);
+    //        var command = new UploadFileCommand(bytes, originalFileName, extension, contentType);
+    //        var fileId = await _mediator.Send(command);
 
-            return Ok(fileId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al guardar el archivo");
-            return BadRequest();
-        }
+    //        return Ok(fileId);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogError(ex, "Error al guardar el archivo");
+    //        return BadRequest();
+    //    }
 
-    }
+    //}
 
     [AllowAnonymous]
     [HttpGet]
