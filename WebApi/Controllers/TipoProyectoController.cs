@@ -95,5 +95,21 @@ namespace WebApi.Controllers
                 return BadRequest();
             }
         }
+
+        [Route("{id}")]
+        [HttpGet]
+        public async Task<IActionResult> Get([FromRoute] Guid id)
+        {
+            var query = new GetTipoProyectoByIdQuery()
+            {
+                TipoProyecto = id
+            };
+            var result = await _mediator.Send(query);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
     }
 }
