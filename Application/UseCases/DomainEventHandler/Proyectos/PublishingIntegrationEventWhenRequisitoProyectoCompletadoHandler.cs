@@ -3,7 +3,7 @@ using MassTransit;
 using MediatR;
 using Shared.Core;
 
-namespace Application.UseCases.DomainEventHandler
+namespace Application.UseCases.DomainEventHandler.Proyectos
 {
     public class PublishingIntegrationEventWhenRequisitoProyectoCompletadoHandler : INotificationHandler<ConfirmedDomainEvent<RequisitoProyectoCompletado>>
     {
@@ -20,7 +20,7 @@ namespace Application.UseCases.DomainEventHandler
             {
                 ProyectoId = notification.DomainEvent.ProyectoId,
             };
-            await _publishEndpoint.Publish<Shared.IntegrationEvents.DonacionCreada>(evento);
+            await _publishEndpoint.Publish<Shared.IntegrationEvents.RequisitoProyectoCompletado>(evento);
 
         }
     }

@@ -1,5 +1,4 @@
-﻿using Domain.Events.Proyecto;
-using Domain.Events.TipoProyecto;
+﻿using Domain.Events.TipoProyecto;
 using MassTransit;
 using MediatR;
 using Shared.Core;
@@ -23,7 +22,7 @@ namespace Application.UseCases.DomainEventHandler.TipoProyecto
                 TipoProyectoId = notification.DomainEvent.TipoProyectoId,
                 Nombre = notification.DomainEvent.Nombre
             };
-            await _publishEndpoint.Publish<Shared.IntegrationEvents.DonacionCreada>(evento);
+            await _publishEndpoint.Publish<Shared.IntegrationEvents.TipoProyectoCreado>(evento);
 
         }
     }

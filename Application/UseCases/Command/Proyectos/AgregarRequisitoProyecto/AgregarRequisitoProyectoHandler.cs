@@ -1,6 +1,8 @@
-﻿using Domain.Repository.Archivos;
+﻿using Domain.Model.Proyectos;
+using Domain.Repository.Archivos;
 using Domain.Repository.Proyectos;
 using Domain.Repository.Requerimientos;
+using Domain.Repository.TiposProyectos;
 using MediatR;
 using Shared.Core;
 
@@ -8,13 +10,15 @@ namespace Application.UseCases.Command.Proyectos.AgregarRequisitoProyecto
 {
     public class AgregarRequisitoProyectoHandler : IRequestHandler<AgregarRequisitoProyectoCommand, Guid>
     {
+        private readonly ITipoProyectoRepository _tipoProyectoRepository;
         private readonly IProyectoRepository _proyectoRepository;
         private readonly IRequerimientoRepository _requerimientoRepository;
         private readonly IArchivoRepository _archivoRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AgregarRequisitoProyectoHandler(IProyectoRepository proyectoRepository, IRequerimientoRepository requerimientoRepository, IArchivoRepository archivoRepository, IUnitOfWork unitOfWort)
+        public AgregarRequisitoProyectoHandler(ITipoProyectoRepository tipoProyectoRepository, IProyectoRepository proyectoRepository, IRequerimientoRepository requerimientoRepository, IArchivoRepository archivoRepository, IUnitOfWork unitOfWort)
         {
+            _tipoProyectoRepository = tipoProyectoRepository;
             _proyectoRepository = proyectoRepository;
             _requerimientoRepository = requerimientoRepository;
             _archivoRepository = archivoRepository;
@@ -43,9 +47,25 @@ namespace Application.UseCases.Command.Proyectos.AgregarRequisitoProyecto
             }
 
 
-
             proyecto.AgregarRequisitoProyecto(archivo.Id, requerimiento.Id);
-            System.Diagnostics.Debug.WriteLine("idProyecto = " + proyecto.Requisitos.Count());
+
+            var tipoProyecto = await _tipoProyectoRepository.FindByIdAsync(proyecto.TipoProyectoId);
+
+            bool tieneTodosLosRequisitos = true;
+
+            foreach (var requerimientoEnTipoProyecto in tipoProyecto.RequerimientosTipos)
+            {
+                var requisitoProyecto = proyecto.Requisitos.FirstOrDefault(x => x.RequerimientoId == requerimientoEnTipoProyecto.RequerimientoId);
+                if (requisitoProyecto == null && requerimientoEnTipoProyecto.Obligatorio)
+                {
+                    tieneTodosLosRequisitos = false;
+                }
+            }
+
+            if (tieneTodosLosRequisitos)
+            {
+                proyecto.MarcarRequisitosCompletados();
+            }
 
             await _proyectoRepository.UpdateAsync(proyecto);
             await _unitOfWork.CommitAsync();

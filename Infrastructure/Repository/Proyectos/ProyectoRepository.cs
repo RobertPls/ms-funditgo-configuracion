@@ -42,7 +42,6 @@ namespace Infrastructure.Repository.Proyectos
                 {
                     var evento = (RequisitoProyectoAgregado)e;
                     var requisitoProyecto = obj.Requisitos.FirstOrDefault(c => c.Id == evento.RequisitoProyectoId);
-                    System.Diagnostics.Debug.WriteLine(requisitoProyecto.Id);
 
                     await _context.RequisitoProyecto.AddAsync(requisitoProyecto);
                 }

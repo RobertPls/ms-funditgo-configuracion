@@ -38,6 +38,7 @@ namespace Infrastructure.Query.Proyectos
             return new ProyectoDto
             {
                 Id = proyecto.Id,
+                CreadorId = proyecto.CreadorId,
                 Estado = proyecto.Estado,
                 TipoProyecto = new TipoProyectoSimpleDto { Id = proyecto.TipoProyecto.Id, Nombre = proyecto.TipoProyecto.Nombre },
                 Titulo = proyecto.Titulo,

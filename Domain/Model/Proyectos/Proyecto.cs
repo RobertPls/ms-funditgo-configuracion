@@ -37,9 +37,9 @@ namespace Domain.Model.Proyectos
                 throw new BussinessRuleValidationException("El creadorId es invalido");
             }
             Id = id;
+            CreadorId = creadorId;
             TipoProyectoId = tipoProyectoId;
             Titulo = titulo;
-            CreadorId = creadorId;
             Estado = estado;
             _requisitos = new List<RequisitoProyecto>();
         }

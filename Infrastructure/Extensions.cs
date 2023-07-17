@@ -1,6 +1,7 @@
 ﻿
 using Application;
 using Application.Services;
+using Application.UseCases.Consumers;
 using Domain.Repository.Archivos;
 using Domain.Repository.Proyectos;
 using Domain.Repository.Requerimientos;
@@ -12,6 +13,7 @@ using Infrastructure.Repository.Proyectos;
 using Infrastructure.Repository.Requerimientos;
 using Infrastructure.Repository.TiposTipoProyectos;
 using Infrastructure.Services;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +37,7 @@ public static class Extensions
         services.AddScoped<IRequerimientoRepository, RequerimientoRepository>();
         services.AddScoped<ITipoProyectoRepository, TipoProyectoRepository>();
 
+        AddRabbitMq(services, configuration);
         return services;
     }
 
@@ -49,5 +52,29 @@ public static class Extensions
             var context = scope.ServiceProvider.GetRequiredService<ReadDbContext>();
             context.Database.Migrate();
         }
+    }
+    public static void AddRabbitMq(this IServiceCollection services, IConfiguration configuration)
+    {
+        var rabbitMqHost = configuration["RabbitMq:Host"];
+        var rabbitMqPort = configuration["RabbitMq:Port"];
+        var rabbitMqUserName = configuration["RabbitMq:UserName"];
+        var rabbitMqPassword = configuration["RabbitMq:Password"];
+
+        services.AddMassTransit(config =>
+        {
+            config.AddConsumer<ProyectoCreadoConsumer>().Endpoint(endpoint => endpoint.Name = ProyectoCreadoConsumer.QueueName);
+
+            config.UsingRabbitMq((context, cfg) =>
+            {
+                var uri = string.Format("amqps://{0}:{1}@{2}:{3}", rabbitMqUserName, rabbitMqPassword, rabbitMqHost, rabbitMqPort);
+                cfg.Host(uri);
+
+                cfg.ReceiveEndpoint(ProyectoCreadoConsumer.QueueName, endpoint =>
+                {
+                    endpoint.ConfigureConsumer<ProyectoCreadoConsumer>(context);
+                });
+            });
+        }
+        );
     }
 }

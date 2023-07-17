@@ -1,6 +1,6 @@
 ﻿using Application.UseCases.Command.Proyectos.CrearProyecto;
 using MassTransit;
-using MassTransit.Mediator;
+using MediatR;
 using Shared.IntegrationEvents;
 
 namespace Application.UseCases.Consumers
