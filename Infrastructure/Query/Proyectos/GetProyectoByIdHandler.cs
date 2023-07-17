@@ -46,7 +46,7 @@ namespace Infrastructure.Query.Proyectos
                 {
                     Id = r.Id,
                     Requerimiento = new RequerimientoDto { Id = r.Requerimiento.Id, Nombre = r.Requerimiento.Nombre },
-                    AtchivoId = r.ArchivoId
+                    ArchivoId = r.ArchivoId
                 }).ToList(),
             };
         }

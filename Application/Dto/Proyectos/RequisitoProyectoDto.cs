@@ -7,6 +7,6 @@ namespace Application.Dto.Proyectos
     {
         public Guid Id { get; set; }
         public RequerimientoDto Requerimiento { get; set; }
-        public Guid AtchivoId { get; set; }
+        public Guid ArchivoId { get; set; }
     }
 }
